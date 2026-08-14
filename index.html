@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Engine 2.0 · Part 3 — Short Conversations (Saber 11 ICFES)</title>
+<meta name="description" content="Generador de pruebas ICFES Saber 11 — Parte 3: Short Conversations, 100% offline.">
+<style>
+/* ==========================================
+   Exam Engine 2.0 — Part 3 Short Conversations
+   Estilo heredado del index.html original (mismo lenguaje visual)
+   ========================================== */
+:root{
+  --font-family-title:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-family-body:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --color-emerald:#10b981; --color-emerald-light:rgba(16,185,129,.15); --color-emerald-border:rgba(16,185,129,.4);
+  --color-rose:#f43f5e; --color-rose-light:rgba(244,63,94,.15); --color-rose-border:rgba(244,63,94,.4);
+  --color-warning-amber:#d97706; --color-warning-light:#fef3c7;
+  --border-radius-sm:8px; --border-radius-md:12px; --border-radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.05); --shadow-md:0 8px 24px rgba(0,0,0,.08); --shadow-lg:0 16px 40px rgba(0,0,0,.12);
+  --transition-normal:all .3s cubic-bezier(.4,0,.2,1); --transition-fast:all .15s ease-out;
+}
+.theme-slate-dark{
+  --bg-app:#0b0f19; --bg-card:#131c2e; --bg-card-hover:#1b263f; --bg-input:#1b263f; --border-color:#24324f;
+  --text-main:#f3f4f6; --text-muted:#9ca3af; --text-inverse:#0b0f19;
+  --color-primary:#6366f1; --color-primary-hover:#4f46e5; --color-primary-light:rgba(99,102,241,.15);
+  --color-secondary:#0ea5e9; --color-secondary-hover:#0284c7;
+  --color-accent:#a855f7; --color-accent-hover:#9333ea;
+  --scrollbar-track:#0b0f19; --scrollbar-thumb:#24324f;
+}
+.theme-slate-light{
+  --bg-app:#f8fafc; --bg-card:#ffffff; --bg-card-hover:#f1f5f9; --bg-input:#f8fafc; --border-color:#e2e8f0;
+  --text-main:#0f172a; --text-muted:#64748b; --text-inverse:#ffffff;
+  --color-primary:#4f46e5; --color-primary-hover:#3730a3; --color-primary-light:rgba(79,70,229,.08);
+  --color-secondary:#0284c7; --color-secondary-hover:#0369a1;
+  --color-accent:#7e22ce; --color-accent-hover:#6b21a8;
+  --scrollbar-track:#f1f5f9; --scrollbar-thumb:#cbd5e1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background-color:var(--bg-app);color:var(--text-main);font-family:var(--font-family-body);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;transition:var(--transition-normal);overflow-x:hidden}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--scrollbar-track)}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:var(--border-radius-sm)}
+::-webkit-scrollbar-thumb:hover{background:var(--color-primary)}
+
+.app-container{display:flex;flex-direction:column;min-height:100vh;max-width:1200px;width:100%;margin:0 auto}
+
+.main-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--border-color);background-color:var(--bg-card);flex-wrap:wrap;gap:12px}
+.header-logo{display:flex;align-items:center;gap:12px}
+.logo-text h1{font-family:var(--font-family-title);font-size:19px;font-weight:700;letter-spacing:-.4px}
+.logo-text p{font-size:12px;color:var(--text-muted)}
+.header-actions{display:flex;gap:12px}
+.btn-icon{background:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition-fast)}
+.btn-icon:hover{background:var(--bg-card-hover);border-color:var(--color-primary);transform:translateY(-2px)}
+.icon-svg{width:20px;height:20px}
+
+.context-bar{background-color:var(--bg-app);border-bottom:1px solid var(--border-color);padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{background:var(--bg-card);border:1px solid var(--border-color);padding:6px 14px;border-radius:var(--border-radius-lg);font-size:12px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+.pill.accent{color:var(--color-primary);border-color:var(--color-primary);background:var(--color-primary-light)}
+
+.main-content{flex:1;display:flex;flex-direction:column;padding:24px;gap:18px}
+
+.panel{background-color:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:16px 20px;box-shadow:var(--shadow-sm)}
+.panel-title{font-family:var(--font-family-title);font-size:14.5px;font-weight:700}
+.editor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.toolbar-panel{background-color:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:16px 20px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;box-shadow:var(--shadow-sm)}
+.tb-field{display:flex;flex-direction:column;gap:5px;min-width:150px}
+.tb-field label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+.tb-field select,.tb-field input{background-color:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);padding:9px 10px;border-radius:var(--border-radius-md);font-family:inherit;font-size:13px;outline:none}
+.tb-field select:focus,.tb-field input:focus{border-color:var(--color-primary);box-shadow:0 0 0 2px var(--color-primary-light)}
+.tb-toggle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;padding:9px 4px}
+.tb-spacer{flex:1}
+
+.exercise-workspace{background-color:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:24px;min-height:400px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column}
+
+.part-info-section{display:flex;flex-direction:column;gap:6px}
+.part-badge{align-self:flex-start;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;background:var(--color-primary-light);color:var(--color-primary);padding:4px 10px;border-radius:4px;border:1px solid rgba(99,102,241,.3)}
+.part-title{font-family:var(--font-family-title);font-size:22px;font-weight:700}
+.part-instructions{font-size:13.5px;color:var(--text-muted);line-height:1.5}
+
+.app-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid var(--border-color);background-color:var(--bg-card);gap:24px;flex-wrap:wrap}
+.score-card{display:flex;align-items:center;gap:16px;flex:1;max-width:340px}
+.score-text{font-family:var(--font-family-title);font-weight:700;font-size:15px;white-space:nowrap}
+.progress-bar-container{width:100%;height:8px;background-color:var(--bg-input);border-radius:4px;overflow:hidden;border:1px solid var(--border-color)}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--color-primary),var(--color-secondary));transition:width .5s ease-out}
+.action-buttons{display:flex;gap:10px;flex-wrap:wrap;position:relative}
+.footer-note{width:100%;text-align:right;font-size:9px;color:var(--text-muted)}
+.footer-note a{color:var(--color-secondary)}
+
+.btn{font-family:var(--font-family-title);font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:var(--border-radius-md);border:none;cursor:pointer;display:flex;align-items:center;gap:7px;transition:var(--transition-normal);white-space:nowrap}
+.btn-primary{background-color:var(--color-primary);color:var(--text-inverse)}
+.btn-primary:hover{background-color:var(--color-primary-hover);transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,.3)}
+.btn-secondary{background-color:var(--bg-input);color:var(--text-main);border:1px solid var(--border-color)}
+.btn-secondary:hover{background-color:var(--bg-card-hover);border-color:var(--text-muted);transform:translateY(-2px)}
+.btn-accent{background-color:var(--color-accent);color:var(--text-inverse)}
+.btn-accent:hover{background-color:var(--color-accent-hover);transform:translateY(-2px);box-shadow:0 4px 12px rgba(168,85,247,.3)}
+.btn-sm{padding:6px 10px;font-size:11.5px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+
+.export-menu{position:absolute;bottom:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-md);box-shadow:var(--shadow-lg);padding:8px;display:none;flex-direction:column;gap:4px;min-width:210px;z-index:50}
+.export-menu.show{display:flex}
+.export-menu button{background:none;border:none;color:var(--text-main);text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;display:flex;gap:8px;align-items:center}
+.export-menu button:hover{background:var(--bg-card-hover)}
+
+/* Modal */
+.modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(11,15,25,.85);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:1000}
+.modal-backdrop.show{opacity:1;pointer-events:auto}
+.modal-card{background-color:var(--bg-card);border:1px solid var(--border-color);width:92%;max-width:560px;border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);transform:translateY(30px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+.modal-backdrop.show .modal-card{transform:translateY(0)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border-color)}
+.modal-header h3{font-family:var(--font-family-title);font-size:17px}
+.btn-close-modal{background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer}
+.btn-close-modal:hover{color:var(--text-main)}
+.modal-body{padding:22px 24px;max-height:70vh;overflow-y:auto}
+.modal-divider{border:0;height:1px;background-color:var(--border-color);margin:16px 0}
+.form-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+label{font-size:12.5px;font-weight:600;color:var(--text-muted)}
+input,select{background-color:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);padding:11px;border-radius:var(--border-radius-md);font-family:inherit;font-size:13.5px;outline:none;transition:var(--transition-fast);width:100%}
+input:focus,select:focus{border-color:var(--color-primary);box-shadow:0 0 0 2px var(--color-primary-light)}
+.form-help{font-size:11px;color:var(--text-muted);line-height:1.4}
+.checkbox-label{display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer}
+
+/* Toasts */
+.toast-stack{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:2000;width:min(420px,92vw)}
+.toast{background:var(--bg-card);border:1px solid var(--border-color);border-left:4px solid var(--color-primary);border-radius:10px;padding:11px 14px;font-size:13px;box-shadow:var(--shadow-md);animation:toast-in .25s ease}
+.toast.warn{border-left-color:var(--color-warning-amber)}
+.toast.error{border-left-color:var(--color-rose)}
+.toast.ok{border-left-color:var(--color-emerald)}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Shimmer loading */
+.welcome-shimmer{display:flex;flex-direction:column;gap:12px;padding:20px 0}
+.shimmer-line{height:16px;border-radius:6px;background:linear-gradient(90deg,var(--bg-input) 25%,var(--bg-card-hover) 50%,var(--bg-input) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+.shimmer-line.title{width:60%;height:22px}
+.shimmer-line.text{width:90%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ============ WORKSHEET (ICFES Part 3 look, heredado del index.html) ============ */
+.icfes-dialog-worksheet{position:relative;background:#ffffff;color:#111111;border:1px solid #1f1f1f;border-radius:10px;padding:28px;overflow:hidden;font-family:var(--font-family-body)}
+.icfes-watermark{position:absolute;width:460px;height:460px;top:140px;left:50%;transform:translateX(-50%) rotate(18deg);border:34px solid rgba(0,0,0,.04);border-radius:90px;pointer-events:none}
+.icfes-section-label{position:relative;z-index:1;text-align:center;font-weight:700;margin-bottom:8px}
+.icfes-title{position:relative;z-index:1;color:#c62828;text-transform:uppercase;text-align:center;font-weight:800;letter-spacing:.25px;font-size:19px;line-height:1.25;margin-bottom:16px}
+.icfes-instructions{position:relative;z-index:1;margin-left:24px;margin-bottom:16px;line-height:1.55;font-size:14.5px}
+.icfes-example-label{position:relative;z-index:1;font-weight:800;margin-bottom:12px;font-size:15px;display:flex;align-items:center;gap:10px}
+
+.icfes-illustration-wrap{display:none}
+
+.icfes-example-block{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:24px;margin-bottom:14px}
+.speaker-a-container{display:flex;flex-direction:column;gap:12px;align-items:center}
+.speaker-b-container{display:flex;flex-direction:column;gap:12px;align-items:center}
+.speaker-image{width:100%;height:200px;object-fit:cover;border-radius:8px;border:1px solid #cccccc;display:block}
+.icfes-speech-bubble{border:2px solid #1f1f1f;border-radius:14px;padding:12px 14px;font-size:15.5px;line-height:1.35;background:#ffffff;position:relative;outline:none;width:100%}
+.icfes-speech-bubble::after{content:"";position:absolute;left:-12px;top:24px;width:12px;height:12px;background:#ffffff;border-left:2px solid #1f1f1f;border-bottom:2px solid #1f1f1f;transform:rotate(45deg)}
+.speaker-b-options{display:flex;flex-direction:column;gap:8px;width:100%}
+.speaker-b-option{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #cccccc;border-radius:8px;background:#ffffff}
+.speaker-b-option.is-correct{border-color:#1a7d3a;background:#eefbf1}
+.speaker-b-option .mark-ok{color:#1a7d3a;font-weight:800;margin-left:auto}
+.option-label{font-weight:800;min-width:25px}
+.option-text{flex:1;font-size:14px;outline:none}
+.icfes-example-answers{display:flex;flex-direction:column;gap:8px}
+.icfes-answer-box{border:2px solid #111111;border-radius:14px;background:#ffffff;padding:10px 14px;font-size:15px;line-height:1.2;display:flex;align-items:center;gap:8px;outline:none}
+.icfes-answer-box.is-correct-marked{border-color:#1a7d3a;background:#eefbf1}
+.icfes-answer-box .mark-ok{color:#1a7d3a;font-weight:800;margin-left:auto}
+.icfes-response-panel{position:relative;z-index:1;border:1.6px solid #8f8f8f;border-radius:12px;background:#efefef;padding:10px 14px;display:inline-flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.response-label{font-weight:700}
+.response-options{display:flex;align-items:center;gap:12px}
+.response-number{font-weight:700}
+.response-choice{width:24px;height:24px;border:1.8px solid #333333;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;background:#ffffff}
+.response-choice.is-selected{border-width:3px;border-color:#1a7d3a;background:#eefbf1;color:#1a7d3a}
+.icfes-divider{border-top:1px solid #676767;margin-bottom:18px}
+.icfes-questions-block{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px}
+.icfes-dialog-question{border:1px solid #1f1f1f;border-radius:10px;padding:12px;background:#ffffff;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:10px}
+.icfes-dialog-question.is-regenerating{opacity:.4;pointer-events:none}
+.question-stem{font-size:13.5px;line-height:1.45;outline:none}
+.icfes-options-column{display:flex;flex-direction:column;gap:7px}
+.icfes-option-btn{background:#ffffff;border:1.6px solid #222222;color:#111111;border-radius:10px;padding:8px 10px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13.5px}
+.icfes-option-btn:hover{background:#f4f4f4}
+.icfes-option-letter{font-weight:800;min-width:20px}
+.icfes-option-text{outline:none;flex:1}
+.icfes-option-btn.selected{border-color:#111111;background:#ececec}
+.icfes-option-btn.is-correct{background:var(--color-emerald-light);border-color:var(--color-emerald)}
+.icfes-option-btn.is-correct .icfes-option-letter{color:#0d7d4d}
+.icfes-option-btn.is-incorrect{background:var(--color-rose-light);border-color:var(--color-rose)}
+.icfes-option-btn.is-incorrect .icfes-option-letter{color:#b5183a}
+.icfes-option-btn.is-missed-correct{background:var(--color-warning-light);border-color:var(--color-warning-amber)}
+.q-toolbar{grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px dashed #cfcfcf;padding-top:8px;margin-top:2px}
+.q-toolbar select{padding:5px 6px;font-size:11.5px;width:auto;border-radius:6px}
+.q-toolbar .q-num{font-weight:800;font-size:12px;color:#555}
+@media (max-width:900px){ .icfes-dialog-question{grid-template-columns:1fr} .icfes-example-block{grid-template-columns:1fr;text-align:center} .conversation-image{max-width:100%;height:auto;margin:0 auto} }
+
+/* Editor IA panel — banco de contextos y actos de habla editables */
+.panel-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px}
+.panel-toggle{font-size:12px;color:var(--text-muted)}
+.panel-body.collapsed{display:none}
+.category-bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.category-chip{display:inline-flex;align-items:center;gap:6px;background:var(--color-primary-light);color:var(--color-primary);border:1px solid rgba(99,102,241,.3);padding:5px 8px 5px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer}
+.category-chip.is-off{opacity:.4}
+.chip-remove{cursor:pointer;background:none;border:none;color:inherit;font-size:13px;line-height:1;padding:2px}
+.category-add-row{display:flex;gap:8px;margin-top:10px}
+.category-add-row input{flex:1}
+.category-bank-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}
+
+/* Question toolbar — controles de edición por pregunta */
+.q-controls{display:flex;gap:6px;flex-wrap:wrap}
+.q-controls button{padding:5px 8px;font-size:11px;font-weight:600;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-muted);cursor:pointer}
+.q-controls button:hover{color:var(--text-main);border-color:var(--color-primary)}
+
+/* Validation & metadata panels */
+.info-panel{background-color:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);display:none;flex-direction:column;gap:10px}
+.info-panel.show{display:flex}
+.info-panel h4{font-family:var(--font-family-title);font-size:14px}
+.check-row{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--text-muted)}
+.check-row .mark{font-weight:800}
+.check-row.ok .mark{color:var(--color-emerald)}
+.check-row.fail .mark{color:var(--color-rose)}
+.meta-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.meta-table th,.meta-table td{border:1px solid var(--border-color);padding:6px 8px;text-align:left}
+.meta-table th{background:var(--bg-input);color:var(--text-muted);font-weight:700}
+
+@media print{
+  body *{visibility:hidden}
+  .exercise-workspace,.exercise-workspace *{visibility:visible}
+  .exercise-workspace{position:absolute;top:0;left:0;width:100%;border:none;box-shadow:none;padding:0}
+  .icfes-option-btn{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body class="theme-slate-dark">
+<div class="app-container">
+
+  <header class="main-header">
+    <div class="header-logo">
+      <div class="logo-text">
+        <h1>📚ICFES practice tests⚡ Part 3 <br/>Short Conversations</h1>
+        <p>Practice Saber 11 English —Part 3—</p>
+         <h1></h1>
+          
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-theme" class="btn-icon" title="Cambiar tema" aria-label="Cambiar tema">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9 9.005 9.005 0 0 0-9-9zm0 16a7 7 0 1 1 7-7 7.008 7.008 0 0 1-7 7z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="context-bar" aria-label="Estado del módulo">
+    <span class="pill accent">Parte 3 · Short Conversations</span>
+    <span class="pill">Nivel MCE: A2–B1</span>
+    <span class="pill" id="pill-count">Example (0) + Questions 1–10</span>
+    <span class="pill">3 opciones (A/B/C)</span>
+  </nav>
+
+  <main class="main-content">
+
+    <section class="toolbar-panel">
+      <div class="tb-field">
+        <label for="tb-difficulty">Nivel de dificultad</label>
+        <select id="tb-difficulty">
+          <option value="any">A2–B1 (mixto)</option>
+          <option value="A2">A2</option>
+          <option value="B1">B1</option>
+        </select>
+      </div>
+      <div class="tb-field">
+        <label for="tb-context">Enfocar contexto</label>
+        <select id="tb-context">
+          <option value="any">Cualquier contexto</option>
+        </select>
+      </div>
+      <label class="tb-toggle"><input type="checkbox" id="tb-show-example" checked> Mostrar Example</label>
+      <label class="tb-toggle"><input type="checkbox" id="tb-show-key"> Ver clave de respuestas</label>
+      <label class="tb-toggle"><input type="checkbox" id="tb-show-meta"> Ver metadatos psicométricos</label>
+      <label class="tb-toggle"><input type="checkbox" id="tb-show-validation"> Ver validaciones</label>
+      <div class="tb-spacer"></div>
+      <button id="btn-new-exercise" class="btn btn-accent">✨ Nueva prueba</button>
+    </section>
+
+    <section class="panel" id="editorPanel">
+      <div class="panel-header" id="editorPanelHeader">
+        <h3 class="panel-title">🧩 Editor IA — configuración del ejercicio</h3>
+        <span class="panel-toggle" id="editorPanelToggle">ocultar ▲</span>
+      </div>
+      <div class="panel-body" id="editorPanelBody">
+        <div class="editor-grid">
+          <div class="tb-field">
+            <label for="cfgQuantity">Cantidad de preguntas</label>
+            <input type="number" id="cfgQuantity" min="4" max="20" value="10">
+          </div>
+          <div class="tb-field">
+            <label for="cfgTopic">Tema orientador (opcional)</label>
+            <input type="text" id="cfgTopic" placeholder="Ej: vida escolar, viajes...">
+          </div>
+          <div class="tb-field">
+            <label for="cfgVocabulary">Vocabulario</label>
+            <select id="cfgVocabulary">
+              <option value="cotidiano" selected>Cotidiano</option>
+              <option value="académico-básico">Académico básico</option>
+              <option value="servicios públicos">Servicios públicos</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label class="category-bank-label">Banco de contextos (clic para incluir/excluir)</label>
+          <div class="category-bank" id="contextBank" role="group" aria-label="Banco de contextos editable"></div>
+          <div class="category-add-row">
+            <input type="text" id="newContextInput" placeholder="Agregar nuevo contexto..." aria-label="Nuevo contexto">
+            <button class="btn btn-secondary btn-sm" id="btnAddContext">Agregar</button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label class="category-bank-label">Intenciones comunicativas permitidas</label>
+          <div class="category-bank" id="speechActBank" role="group" aria-label="Actos de habla editables"></div>
+          <div class="category-add-row">
+            <input type="text" id="newSpeechActInput" placeholder="Agregar nueva intención comunicativa..." aria-label="Nueva intención comunicativa">
+            <button class="btn btn-secondary btn-sm" id="btnAddSpeechAct">Agregar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="part-info-section">
+      <div class="part-badge">Parte 3</div>
+      <h2 class="part-title">Part 3 — Short Conversations</h2>
+      <p class="part-instructions">Genera automáticamente pruebas equivalentes a la Parte 3 del Saber 11 (ICFES): un Example (0) no calificable seguido de 10 preguntas calificables, cada una con tres opciones (A, B, C) y una única intención comunicativa evaluada.</p>
+    </section>
+
+    <section class="exercise-workspace" id="workspace" aria-live="polite">
+      <div class="welcome-shimmer">
+        <div class="shimmer-line title"></div>
+        <div class="shimmer-line text"></div>
+        <div class="shimmer-line text"></div>
+        <div class="shimmer-line text"></div>
+      </div>
+    </section>
+
+    <section class="info-panel" id="validation-panel">
+      <h4>✓ Validaciones automáticas</h4>
+      <div id="validation-list"></div>
+    </section>
+
+    <section class="info-panel" id="metadata-panel">
+      <h4>🧠 Motor psicométrico — metadatos por pregunta</h4>
+      <table class="meta-table">
+        <thead><tr><th>#</th><th>Competency</th><th>Speech Act</th><th>Communicative Function</th><th>Difficulty</th><th>Register</th><th>Context</th><th>Correct</th></tr></thead>
+        <tbody id="metadata-body"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="score-card">
+      <div class="score-text">Puntaje: <span id="score-value">-- / --</span></div>
+      <div class="progress-bar-container"><div class="progress-bar-fill" id="score-progress" style="width:0%"></div></div>
+    </div>
+    <div class="action-buttons">
+      <button id="btn-reset" class="btn btn-secondary">🔄 Reiniciar</button>
+      <button id="btn-show-answers" class="btn btn-secondary">👁️ Soluciones</button>
+      <button id="btn-check" class="btn btn-primary">✅ Revisar</button>
+      <div style="position:relative;">
+        <button id="btn-export" class="btn btn-secondary">⬇️ Exportar</button>
+        <div class="export-menu" id="export-menu">
+          <button id="exp-json">🧾 JSON (Exam Engine 2.0)</button>
+          <button id="exp-md">📝 Markdown</button>
+          <button id="exp-html">🌐 HTML</button>
+          <button id="exp-pdf">🖨️ PDF (imprimir)</button>
+        </div>
+      </div>
+    </div>
+    <p class="footer-note"><p style="text-align: right; font-size: 9px;">Herramienta diseñada por el profesor <b>Édgar Herrera</b> con el apoyo de la IA agéntica <b><a href="https://devin.ai/desktop"> Windsurf </a></b></p></p>
+  </footer>
+
+
+  <div class="toast-stack" id="toast-stack"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   MÓDULO: schemas — estructura JSON esperada por Exam Engine 2.0 (PRD)
+   ========================================================================= */
+const EXAM_SCHEMA_TEMPLATE = {
+  part: 3, title: "", instructions: "", example: {}, questions: [], answerKey: [], metadata: {}
+};
+const METADATA_FIELD_TEMPLATE = {
+  competency: "", speechAct: "", communicativeFunction: "", difficulty: "", register: "", context: "", correctAnswer: ""
+};
+
+/* =========================================================================
+   MÓDULO: blueprints — contextos y actos de habla permitidos (PRD)
+   ========================================================================= */
+const CONTEXTS = ["school","family","restaurant","shopping","health","vacations","sports","transportation","weather","technology","free time","friends"];
+const SPEECH_ACTS = ["apologizing","thanking","accepting","refusing","agreeing","disagreeing","inviting","offering help","requesting information","giving advice","congratulating","expressing sympathy","expressing surprise","expressing preferences","asking for clarification"];
+
+/* =========================================================================
+   MÓDULO: blueprints — banco curado offline (fallback y modo por defecto)
+   Cada plantilla: contexto único + una sola intención comunicativa (PRD).
+   ========================================================================= */
+const QUESTION_BANK = [
+  {context:"health", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I can't eat a cold sandwich. It is horrible!", correct:"I agree.", distractors:["I hope so.","I am not."]},
+  {context:"vacations", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"I am going on vacation to Vancouver!", correct:"That's great!", distractors:["I like swimming!","You are first!"]},
+  {context:"weather", speechAct:"asking for clarification", register:"informal", difficulty:"B1", speakerLine:"It rained a lot last night.", correct:"Did you sleep?", distractors:["Did you accept?","Did you understand?"]},
+  {context:"school", speechAct:"asking for clarification", register:"informal", difficulty:"A2", speakerLine:"I don't understand this homework question.", correct:"Which part is confusing you?", distractors:["I finished mine early.","The classroom is upstairs."]},
+  {context:"family", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"My little brother won't stop crying.", correct:"Do you want me to hold him for a while?", distractors:["He is very tall.","I like loud music."]},
+  {context:"restaurant", speechAct:"requesting information", register:"neutral", difficulty:"A2", speakerLine:"Excuse me, do you have any vegetarian options?", correct:"Yes, we have a great veggie burger.", distractors:["The bathroom is over there.","I paid with my card."]},
+  {context:"shopping", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"I like the blue shirt more than the red one.", correct:"Me too, blue suits you better.", distractors:["It closes at nine.","I forgot my umbrella."]},
+  {context:"sports", speechAct:"congratulating", register:"informal", difficulty:"A2", speakerLine:"Our team won the championship yesterday!", correct:"Congratulations! That's amazing news.", distractors:["I don't like team sports.","The gym opens at six."]},
+  {context:"transportation", speechAct:"giving advice", register:"informal", difficulty:"B1", speakerLine:"I always miss the morning bus.", correct:"You should leave home ten minutes earlier.", distractors:["The bus is painted red.","I enjoy long trips."]},
+  {context:"technology", speechAct:"requesting information", register:"neutral", difficulty:"A2", speakerLine:"Do you know how to reset my password?", correct:"Sure, click on 'Forgot password' first.", distractors:["My phone is very old.","I bought a new charger."]},
+  {context:"free time", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"I'm going to the movies tonight.", correct:"Would you like some company?", distractors:["The movie is two hours long.","I saw that ad yesterday."]},
+  {context:"friends", speechAct:"apologizing", register:"informal", difficulty:"A2", speakerLine:"I forgot to call you back yesterday.", correct:"No problem, don't worry about it.", distractors:["It rained all afternoon.","I bought a new phone."]},
+  {context:"school", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"I think the science project was really interesting.", correct:"I agree, I learned a lot too.", distractors:["The library closes at five.","I lost my pencil case."]},
+  {context:"family", speechAct:"disagreeing", register:"informal", difficulty:"B1", speakerLine:"I think we should paint the kitchen yellow.", correct:"Actually, I'd prefer a lighter color.", distractors:["The kitchen has two windows.","Dinner is almost ready."]},
+  {context:"restaurant", speechAct:"accepting", register:"neutral", difficulty:"A2", speakerLine:"Would you like some more coffee?", correct:"Yes, please. Just a little.", distractors:["No, I am not tired.","It is on the table."]},
+  {context:"shopping", speechAct:"refusing", register:"informal", difficulty:"A2", speakerLine:"Do you want to buy this jacket too?", correct:"No thanks, one is enough for now.", distractors:["The store opens early.","I really like autumn colors."]},
+  {context:"health", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I have a terrible headache today.", correct:"You should drink some water and rest.", distractors:["The clinic is very modern.","I ran five kilometers."]},
+  {context:"vacations", speechAct:"requesting information", register:"neutral", difficulty:"B1", speakerLine:"How long does it take to get to the airport?", correct:"About forty-five minutes.", distractors:["It costs twenty dollars.","I prefer traveling by train."]},
+  {context:"sports", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer swimming or running?", correct:"I actually prefer swimming.", distractors:["The pool is closed today.","My shoes are new."]},
+  {context:"transportation", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Here, let me carry your suitcase.", correct:"Thank you, that's very kind.", distractors:["The train leaves at noon.","I don't have a suitcase."]},
+  {context:"weather", speechAct:"expressing surprise", register:"informal", difficulty:"B1", speakerLine:"It's snowing in April this year!", correct:"Wow, that's unusual for this time of year.", distractors:["I prefer sunny days.","The heater is broken."]},
+  {context:"technology", speechAct:"asking for clarification", register:"neutral", difficulty:"B1", speakerLine:"The app keeps crashing on my phone.", correct:"Which version of the app do you have?", distractors:["My screen is very bright.","I like blue phone cases."]},
+  {context:"free time", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"I'd rather read a book than watch TV tonight.", correct:"Same here, I love a good story.", distractors:["The TV is quite large.","The library is closed on Sundays."]},
+  {context:"friends", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"I forgot my wallet at home!", correct:"Don't worry, I can lend you some money.", distractors:["It is a very large shop.","Yes, it was very expensive."]},
+  {context:"school", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for helping me with my homework.", correct:"You're welcome, anytime.", distractors:["The homework is easy.","I have a pen."]},
+  {context:"family", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"My grandmother is in the hospital.", correct:"I'm so sorry to hear that.", distractors:["She is very old.","The hospital is big."]},
+  {context:"restaurant", speechAct:"refusing", register:"neutral", difficulty:"A2", speakerLine:"Would you like to try the dessert menu?", correct:"No thank you, I'm full.", distractors:["The menu is expensive.","I like sweet food."]},
+  {context:"shopping", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for helping me find this dress.", correct:"My pleasure, it looks great on you.", distractors:["The dress is blue.","The store is crowded."]},
+  {context:"health", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Would you like me to drive you to the doctor?", correct:"Yes, that would be very helpful.", distractors:["The doctor is far.","I have a car."]},
+  {context:"vacations", speechAct:"giving advice", register:"informal", difficulty:"B1", speakerLine:"I'm worried about getting lost in the city.", correct:"You should download a map app on your phone.", distractors:["The city is beautiful.","I have a map."]},
+  {context:"sports", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"This game is really exciting!", correct:"I know, it's so close!", distractors:["The game is long.","I like sports."]},
+  {context:"transportation", speechAct:"requesting information", register:"neutral", difficulty:"A2", speakerLine:"When does the next train arrive?", correct:"In about fifteen minutes.", distractors:["The train is fast.","I have a ticket."]},
+  {context:"weather", speechAct:"giving advice", register:"informal", difficulty:"B1", speakerLine:"I forgot my umbrella and it's raining.", correct:"You can share mine.", distractors:["The rain is heavy.","I like rain."]},
+  {context:"technology", speechAct:"congratulating", register:"neutral", difficulty:"A2", speakerLine:"I finally fixed my computer!", correct:"Well done! That must have been difficult.", distractors:["The computer is new.","I like computers."]},
+  {context:"free time", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for inviting me to your party.", correct:"I'm glad you could make it.", distractors:["The party was fun.","I like parties."]},
+  {context:"friends", speechAct:"expressing surprise", register:"informal", difficulty:"B1", speakerLine:"I got accepted to Harvard!", correct:"That's incredible! Congratulations!", distractors:["Harvard is in Boston.","I like school."]},
+  {context:"school", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Want to study together for the test?", correct:"Sure, what time works for you?", distractors:["The test is hard.","I study alone."]},
+  {context:"family", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Can you help me with the groceries?", correct:"Of course, let me take those bags.", distractors:["The bags are heavy.","I have bags."]},
+  {context:"restaurant", speechAct:"giving advice", register:"neutral", difficulty:"A2", speakerLine:"I can't decide what to order.", correct:"The pasta is really good here.", distractors:["The menu is long.","I like pasta."]},
+  {context:"shopping", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"Where are the fitting rooms?", correct:"They're on the second floor.", distractors:["The rooms are small.","I have clothes."]},
+  {context:"health", speechAct:"refusing", register:"informal", difficulty:"A2", speakerLine:"Would you like some more medicine?", correct:"No thanks, I've taken enough.", distractors:["The medicine is bitter.","I like medicine."]},
+  {context:"vacations", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for recommending this hotel.", correct:"You're welcome, it's my favorite.", distractors:["The hotel is nice.","I like hotels."]},
+  {context:"sports", speechAct:"asking for clarification", register:"informal", difficulty:"B1", speakerLine:"What's the score of the game?", correct:"It's tied at two to two.", distractors:["The game is exciting.","I like soccer."]},
+  {context:"transportation", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I missed my flight this morning.", correct:"That's really unfortunate, I'm sorry.", distractors:["The flight was early.","I like flying."]},
+  {context:"weather", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"What's the temperature today?", correct:"It's about twenty degrees.", distractors:["The weather is nice.","I like cold."]},
+  {context:"technology", speechAct:"expressing preferences", register:"neutral", difficulty:"A2", speakerLine:"Do you prefer Android or iOS?", correct:"I prefer Android, it's more customizable.", distractors:["The phone is new.","I have both."]},
+  {context:"free time", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I'm bored and don't know what to do.", correct:"Why don't you try a new hobby?", distractors:["The day is long.","I like reading."]},
+  {context:"friends", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"This movie is really boring.", correct:"I agree, let's leave.", distractors:["The movie is long.","I like movies."]},
+  {context:"school", speechAct:"expressing surprise", register:"informal", difficulty:"B1", speakerLine:"The teacher gave us no homework today!", correct:"Really? That's amazing!", distractors:["The homework is easy.","I like homework."]},
+  {context:"family", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for cooking dinner tonight.", correct:"You're welcome, I enjoyed it.", distractors:["The dinner was good.","I like cooking."]},
+  {context:"restaurant", speechAct:"expressing sympathy", register:"neutral", difficulty:"A2", speakerLine:"I lost my appetite after the bad news.", correct:"I'm sorry to hear that. Take your time.", distractors:["The food is good.","I like eating."]},
+  {context:"shopping", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"These shoes are really comfortable.", correct:"I agree, they feel great.", distractors:["The shoes are red.","I have shoes."]},
+  {context:"health", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer tea or coffee when you're sick?", correct:"I prefer tea, it's more soothing.", distractors:["The tea is hot.","I like coffee."]},
+  {context:"vacations", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Would you like to join us for dinner tonight?", correct:"Yes, I'd love to.", distractors:["Dinner is at seven.","I like food."]},
+  {context:"sports", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"I need help carrying this equipment.", correct:"Let me help you with that.", distractors:["The equipment is heavy.","I like sports."]},
+  {context:"transportation", speechAct:"disagreeing", register:"informal", difficulty:"B1", speakerLine:"I think we should take a taxi.", correct:"Actually, the subway is faster.", distractors:["The taxi is expensive.","I like walking."]},
+  {context:"weather", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for warning me about the storm.", correct:"You're welcome, stay safe.", distractors:["The storm is strong.","I like rain."]},
+  {context:"technology", speechAct:"refusing", register:"neutral", difficulty:"A2", speakerLine:"Would you like to buy this phone case?", correct:"No thanks, I don't need one.", distractors:["The case is blue.","I have a case."]},
+  {context:"free time", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"What time does the concert start?", correct:"At eight o'clock.", distractors:["The concert is long.","I like music."]},
+  {context:"friends", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I'm having trouble with my math homework.", correct:"You should ask the teacher for help.", distractors:["The homework is hard.","I like math."]},
+  {context:"school", speechAct:"refusing", register:"informal", difficulty:"A2", speakerLine:"Do you want to join the chess club?", correct:"No thanks, I'm not interested.", distractors:["The club is fun.","I like chess."]},
+  {context:"family", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Want to go for a walk with me?", correct:"Sure, let me get my shoes.", distractors:["The walk is long.","I like walking."]},
+  {context:"restaurant", speechAct:"agreeing", register:"neutral", difficulty:"A2", speakerLine:"This restaurant has excellent service.", correct:"I agree, the staff is very friendly.", distractors:["The service is fast.","I like restaurants."]},
+  {context:"shopping", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I can't find anything I like.", correct:"That's frustrating, let's try another store.", distractors:["The store is big.","I like shopping."]},
+  {context:"health", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"Where is the nearest pharmacy?", correct:"It's two blocks down the street.", distractors:["The pharmacy is small.","I need medicine."]},
+  {context:"vacations", speechAct:"expressing surprise", register:"informal", difficulty:"B1", speakerLine:"Look at this amazing view!", correct:"Wow, it's absolutely beautiful!", distractors:["The view is high.","I like mountains."]},
+  {context:"sports", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for coaching our team.", correct:"You're welcome, it's been a pleasure.", distractors:["The team is good.","I like coaching."]},
+  {context:"transportation", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Would you like me to help you with your luggage?", correct:"Yes, that's very kind of you.", distractors:["The luggage is heavy.","I have bags."]},
+  {context:"weather", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer hot or cold weather?", correct:"I prefer hot weather, I hate the cold.", distractors:["The weather is nice.","I like both."]},
+  {context:"technology", speechAct:"offering help", register:"neutral", difficulty:"A2", speakerLine:"I can't connect to the WiFi.", correct:"Let me check the router for you.", distractors:["The WiFi is slow.","I have internet."]},
+  {context:"free time", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Would you like to play video games with us?", correct:"Sure, I'd love to join.", distractors:["The game is fun.","I like games."]},
+  {context:"friends", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"What time does the party start?", correct:"Around nine o'clock.", distractors:["The party is long.","I like parties."]},
+  {context:"school", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I'm nervous about the presentation.", correct:"Practice in front of a mirror, it helps.", distractors:["The presentation is short.","I like speaking."]},
+  {context:"family", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer chicken or fish for dinner?", correct:"I prefer chicken, it's my favorite.", distractors:["The chicken is good.","I like both."]},
+  {context:"restaurant", speechAct:"thanking", register:"neutral", difficulty:"A2", speakerLine:"Thank you for the excellent meal.", correct:"You're welcome, come back soon.", distractors:["The meal was good.","I like eating."]},
+  {context:"shopping", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Want to go to the mall together?", correct:"Sure, I need to buy some things.", distractors:["The mall is big.","I like shopping."]},
+  {context:"health", speechAct:"congratulating", register:"informal", difficulty:"A2", speakerLine:"I finally quit smoking!", correct:"That's fantastic! You should be proud.", distractors:["Smoking is bad.","I like healthy habits."]},
+  {context:"vacations", speechAct:"disagreeing", register:"informal", difficulty:"B1", speakerLine:"I think we should stay at a luxury hotel.", correct:"Actually, that's too expensive for our budget.", distractors:["The hotel is nice.","I like luxury."]},
+  {context:"sports", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I injured my knee during the game.", correct:"I'm sorry, you should rest and see a doctor.", distractors:["The game was rough.","I like sports."]},
+  {context:"transportation", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer driving or taking the bus?", correct:"I prefer driving, it's more convenient.", distractors:["The bus is slow.","I have a car."]},
+  {context:"weather", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"It's a beautiful day today.", correct:"I agree, perfect weather for a walk.", distractors:["The day is long.","I like sun."]},
+  {context:"technology", speechAct:"giving advice", register:"neutral", difficulty:"A2", speakerLine:"My phone battery dies too quickly.", correct:"You should close unused apps to save power.", distractors:["The battery is old.","I have a charger."]},
+  {context:"free time", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I didn't get the job I wanted.", correct:"I'm sorry, something better will come along.", distractors:["The job was good.","I like working."]},
+  {context:"friends", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Can I borrow your bike for an hour?", correct:"Sure, just bring it back by five.", distractors:["The bike is red.","I have a bike."]},
+  {context:"school", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer working alone or in groups?", correct:"I prefer groups, we learn from each other.", distractors:["Groups are fun.","I like working."]},
+  {context:"family", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"What time does the movie start?", correct:"At seven thirty.", distractors:["The movie is long.","I like films."]},
+  {context:"restaurant", speechAct:"inviting", register:"neutral", difficulty:"A2", speakerLine:"Would you like to join us for lunch?", correct:"Yes, thank you for the invitation.", distractors:["Lunch is at noon.","I like food."]},
+  {context:"shopping", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I don't know which size to choose.", correct:"Try the medium, it should fit well.", distractors:["The size is small.","I like large."]},
+  {context:"health", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"Exercise is really important for health.", correct:"I agree, I try to exercise every day.", distractors:["Exercise is hard.","I like running."]},
+  {context:"vacations", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"I need help planning my itinerary.", correct:"I can help you organize your trip.", distractors:["The trip is long.","I like planning."]},
+  {context:"sports", speechAct:"requesting information", register:"informal", difficulty:"A2", speakerLine:"What time is the match tomorrow?", correct:"It starts at three in the afternoon.", distractors:["The match is important.","I like soccer."]},
+  {context:"transportation", speechAct:"expressing surprise", register:"informal", difficulty:"B1", speakerLine:"The bus is already here!", correct:"That's surprising, it's usually late.", distractors:["The bus is big.","I like buses."]},
+  {context:"weather", speechAct:"refusing", register:"informal", difficulty:"A2", speakerLine:"Want to go to the beach today?", correct:"No thanks, I don't like the heat.", distractors:["The beach is far.","I like swimming."]},
+  {context:"technology", speechAct:"thanking", register:"neutral", difficulty:"A2", speakerLine:"Thanks for fixing my printer.", correct:"You're welcome, it was a simple fix.", distractors:["The printer is old.","I like printing."]},
+  {context:"free time", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"This book is really interesting.", correct:"I agree, I can't put it down.", distractors:["The book is long.","I like reading."]},
+  {context:"friends", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"Do you prefer coffee or tea in the morning?", correct:"I prefer coffee, I need the caffeine.", distractors:["The coffee is hot.","I like both."]},
+  {context:"school", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"I don't understand this math problem.", correct:"Let me explain it to you step by step.", distractors:["The problem is hard.","I like math."]},
+  {context:"family", speechAct:"disagreeing", register:"informal", difficulty:"B1", speakerLine:"I think we should buy a new car.", correct:"Actually, the old one still works fine.", distractors:["The car is old.","I like new cars."]},
+  {context:"restaurant", speechAct:"requesting information", register:"neutral", difficulty:"A2", speakerLine:"How long will the food take?", correct:"About twenty minutes.", distractors:["The food is good.","I am hungry."]},
+  {context:"shopping", speechAct:"congratulating", register:"informal", difficulty:"A2", speakerLine:"I found a great deal on these shoes!", correct:"That's awesome! You saved a lot of money.", distractors:["The shoes are nice.","I like deals."]},
+  {context:"health", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Want to go jogging with me tomorrow?", correct:"Sure, what time should we meet?", distractors:["Jogging is hard.","I like running."]},
+  {context:"vacations", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for taking care of my cat.", correct:"You're welcome, she was very well-behaved.", distractors:["The cat is cute.","I like animals."]},
+  {context:"sports", speechAct:"refusing", register:"informal", difficulty:"A2", speakerLine:"Do you want to play basketball?", correct:"No thanks, I'm too tired today.", distractors:["Basketball is fun.","I like sports."]},
+  {context:"transportation", speechAct:"giving advice", register:"informal", difficulty:"A2", speakerLine:"I'm afraid of flying.", correct:"You should try listening to music during the flight.", distractors:["Flying is safe.","I like planes."]},
+  {context:"weather", speechAct:"accepting", register:"informal", difficulty:"A2", speakerLine:"Would you like to borrow my umbrella?", correct:"Yes, that's very thoughtful of you.", distractors:["The umbrella is blue.","I have one."]},
+  {context:"technology", speechAct:"expressing sympathy", register:"neutral", difficulty:"A2", speakerLine:"I lost all my files when my computer crashed.", correct:"That's terrible, I hope you had a backup.", distractors:["The computer is new.","I like files."]},
+  {context:"free time", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Want to come over for dinner on Friday?", correct:"I'd love to, what should I bring?", distractors:["Dinner is at seven.","I like food."]},
+  {context:"friends", speechAct:"thanking", register:"informal", difficulty:"A2", speakerLine:"Thanks for listening to my problems.", correct:"That's what friends are for.", distractors:["The problems are hard.","I like helping."]}
+];
+
+const EXAMPLE_BANK = [
+  {context:"health", speechAct:"expressing sympathy", register:"informal", difficulty:"A2", speakerLine:"I think I am getting sick.", correct:"I am sorry.", distractors:["I can too.","I need it."]},
+  {context:"school", speechAct:"congratulating", register:"informal", difficulty:"A2", speakerLine:"I passed my English exam today!", correct:"Congratulations! That's wonderful.", distractors:["Never mind, it is too late.","I don't agree with you."]},
+  {context:"friends", speechAct:"offering help", register:"informal", difficulty:"A2", speakerLine:"Can you help me carry these boxes?", correct:"Sure, I'd be happy to help.", distractors:["The boxes are very old.","I like reading books."]},
+  {context:"family", speechAct:"apologizing", register:"informal", difficulty:"A2", speakerLine:"I'm really sorry I broke your mug.", correct:"That's okay, accidents happen.", distractors:["The mug was very expensive.","I like tea more than coffee."]},
+  {context:"friends", speechAct:"inviting", register:"informal", difficulty:"A2", speakerLine:"Would you like to join us for dinner?", correct:"I'd love to, thanks for inviting me.", distractors:["Dinner starts at seven.","I already ate lunch."]},
+  {context:"restaurant", speechAct:"thanking", register:"neutral", difficulty:"A2", speakerLine:"Thank you for the excellent service.", correct:"You're welcome, we appreciate your business.", distractors:["The service is fast.","I like restaurants."]},
+  {context:"shopping", speechAct:"expressing preferences", register:"informal", difficulty:"A2", speakerLine:"I prefer the red dress over the blue one.", correct:"I agree, red looks better on you.", distractors:["The dress is expensive.","I like blue."]},
+  {context:"sports", speechAct:"agreeing", register:"informal", difficulty:"A2", speakerLine:"This game is really exciting!", correct:"I know, it's so close!", distractors:["The game is long.","I like sports."]},
+  {context:"transportation", speechAct:"requesting information", register:"neutral", difficulty:"A2", speakerLine:"When does the next train arrive?", correct:"In about ten minutes.", distractors:["The train is fast.","I have a ticket."]},
+  {context:"technology", speechAct:"giving advice", register:"neutral", difficulty:"A2", speakerLine:"My phone battery dies too quickly.", correct:"You should lower the screen brightness.", distractors:["The battery is old.","I have a charger."]}
+];
+
+/* =========================================================================
+   ESTADO
+   ========================================================================= */
+function loadJSON(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function saveJSON(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); } catch(e){ /* ignore */ }
+}
+
+const state = {
+  theme: "theme-slate-dark",
+  exam: null,
+  userAnswers: {},
+  checked: false,
+  usedQuestionIdx: [],
+  settings: { mode: "offline" },
+  filters: { difficulty: "any", context: "any" },
+  contextBank: loadJSON("examEnginePart3_contextBank", CONTEXTS.slice()),
+  speechActBank: loadJSON("examEnginePart3_speechActBank", SPEECH_ACTS.slice()),
+  editorConfig: loadJSON("examEnginePart3_editorConfig", {
+    quantity: 10, topic: "", vocabulary: "cotidiano",
+    activeContexts: CONTEXTS.slice(), activeSpeechActs: SPEECH_ACTS.slice()
+  })
+};
+
+function persistEditorConfig(){
+  saveJSON("examEnginePart3_contextBank", state.contextBank);
+  saveJSON("examEnginePart3_speechActBank", state.speechActBank);
+  saveJSON("examEnginePart3_editorConfig", state.editorConfig);
+}
+
+const el = {};
+
+/* =========================================================================
+   UTILIDADES
+   ========================================================================= */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function showToast(msg, type){
+  const t = document.createElement("div");
+  t.className = "toast" + (type ? " " + type : "");
+  t.textContent = msg;
+  el.toastStack.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 4200);
+}
+
+
+/* =========================================================================
+   MÓDULO: blueprints/generator — construir preguntas a partir de plantillas
+   ========================================================================= */
+function optionsFromTemplate(t){
+  const opts = shuffle([
+    {text:t.correct, ok:true},
+    {text:t.distractors[0], ok:false},
+    {text:t.distractors[1], ok:false}
+  ]);
+  const letters = ["A","B","C"];
+  const opciones = {};
+  let correct = "A";
+  opts.forEach((o,i)=>{ opciones[letters[i]] = o.text; if(o.ok) correct = letters[i]; });
+  return { opciones, correct };
+}
+
+function templateToQuestion(t, id, displayNumber){
+  const built = optionsFromTemplate(t);
+  return {
+    id, displayNumber,
+    speakerLine: t.speakerLine,
+    opciones: built.opciones,
+    respuestaCorrecta: built.correct,
+    metadata: {
+      competency: "pragmatic-communicative",
+      speechAct: t.speechAct,
+      communicativeFunction: t.speechAct,
+      difficulty: t.difficulty,
+      register: t.register,
+      context: t.context,
+      correctAnswer: built.correct
+    }
+  };
+}
+
+function templateToExample(t){
+  const built = optionsFromTemplate(t);
+  return {
+    speakerLine: t.speakerLine,
+    opciones: built.opciones,
+    respuestaCorrecta: built.correct,
+    context: t.context,
+    speechAct: t.speechAct
+  };
+}
+
+function filterBankByActive(bank){
+  const activeContexts = state.editorConfig.activeContexts.length ? state.editorConfig.activeContexts : CONTEXTS;
+  const activeSpeechActs = state.editorConfig.activeSpeechActs.length ? state.editorConfig.activeSpeechActs : SPEECH_ACTS;
+  const filtered = bank.filter(t => activeContexts.indexOf(t.context) !== -1 && activeSpeechActs.indexOf(t.speechAct) !== -1);
+  return filtered.length ? filtered : bank;
+}
+
+function pickTemplates(bank, filters, count, excludeSignatures){
+  excludeSignatures = excludeSignatures || [];
+  let pool = bank.filter(t =>
+    (filters.difficulty === "any" || t.difficulty === filters.difficulty) &&
+    (filters.context === "any" || t.context === filters.context)
+  );
+  if(pool.length < count) pool = bank.slice(); // fallback si el filtro deja muy pocas plantillas
+  pool = pool.filter(t => excludeSignatures.indexOf(t.speakerLine) === -1);
+  if(pool.length < count) pool = bank.slice();
+  return shuffle(pool).slice(0, count);
+}
+
+function buildOfflineExam(filters){
+  const quantity = state.editorConfig.quantity || 10;
+  const exTpl = pickTemplates(EXAMPLE_BANK, {difficulty:"any", context:"any"}, 1)[0];
+  const qTpls = pickTemplates(filterBankByActive(QUESTION_BANK), filters, quantity);
+  const questions = qTpls.map((t,i)=> templateToQuestion(t, i+1, i+1));
+  return {
+    part: 3,
+    title: "Part 3 - Short Conversations",
+    instructions: "Complete the " + questions.length + " conversations by choosing the response (A, B or C) that best matches Speaker B's intention.",
+    example: templateToExample(exTpl),
+    questions,
+    answerKey: questions.map(q=>({id:q.id, correct:q.respuestaCorrecta})),
+    metadata: { generatedAt: new Date().toISOString(), mode:"offline", difficulty: filters.difficulty, context: filters.context, quantity: questions.length }
+  };
+}
+
+
+/* =========================================================================
+   MÓDULO: validators — validaciones automáticas (PRD)
+   ========================================================================= */
+function validateExam(exam){
+  const checks = [];
+  const push = (label, ok, detail) => checks.push({label, ok, detail});
+
+  const allQ = [exam.example].concat(exam.questions);
+  const uniqueCorrect = allQ.every(q => q.respuestaCorrecta && ["A","B","C"].indexOf(q.respuestaCorrecta) !== -1 && q.opciones && Object.keys(q.opciones).length === 3);
+  push("Existe una única respuesta correcta por pregunta, entre exactamente tres opciones (A, B, C)", uniqueCorrect);
+
+  const plausible = allQ.every(q => {
+    const vals = Object.values(q.opciones || {});
+    if(vals.length !== 3) return false;
+    const lens = vals.map(v => (v||"").length);
+    const maxLen = Math.max.apply(null, lens), minLen = Math.min.apply(null, lens);
+    return minLen > 0 && (maxLen - minLen) <= Math.max(18, maxLen*0.9);
+  });
+  push("Los distractores son gramaticalmente completos y de longitud comparable", plausible);
+
+  const noAbsurd = allQ.every(q => new Set(Object.values(q.opciones||{})).size === 3);
+  push("No hay opciones absurdas ni repetidas dentro de una misma pregunta", noAbsurd);
+
+  const vocabOk = allQ.every(q => Object.values(q.opciones||{}).concat([q.speakerLine||""]).every(t => !/[A-Za-z]{16,}/.test(t)));
+  push("El vocabulario corresponde al nivel A2–B1 (sin términos excesivamente técnicos)", vocabOk);
+
+  const realSituation = exam.questions.every(q => q.metadata && CONTEXTS.indexOf(q.metadata.context) !== -1);
+  push("Cada conversación representa una situación cotidiana auténtica", realSituation);
+
+  const oneFunction = exam.questions.every(q => q.metadata && SPEECH_ACTS.indexOf(q.metadata.speechAct) !== -1);
+  push("Cada pregunta evalúa una única intención comunicativa reconocida", oneFunction);
+
+  const expectedCount = state.editorConfig.quantity || 10;
+  const exampleFirst = !!exam.example && exam.questions.length === expectedCount;
+  push("El Example (0) aparece antes de la pregunta 1, y hay exactamente " + expectedCount + " preguntas calificables", exampleFirst);
+
+  return checks;
+}
+
+/* =========================================================================
+   MÓDULO: avatars — fotografías realistas por contexto (100% offline)
+   ========================================================================= */
+function getContextImagePath(context){
+  const contextMap = {
+    "health": "assets/images/health/health-01.png",
+    "school": "assets/images/school/school-01.jpg",
+    "restaurant": "assets/images/restaurant/restaurant-01.png",
+    "shopping": "assets/images/shopping/shopping-01.png",
+     "family": "assets/images/family/family-01.png",
+    "vacations": "assets/images/vacations/vacations-01.png",
+    "sports": "assets/images/sports/sports-01.png",
+    "transportation": "assets/images/transportation/transportation-01.png",
+    "weather": "assets/images/weather/weather-01.png",
+    "technology": "assets/images/technology/technology-01.jpg",
+    "free time": "assets/images/free_time/free_time-01.png",
+    "friends": "assets/images/friends/friends-01.jpg"
+  };
+  return contextMap[context] || "assets/images/school/school-01.svg";
+}
+
+function getContextImagePathSpeakerB(context){
+  const contextMap = {
+    "health": "assets/images/health/health-02.png",
+    "school": "assets/images/school/school-02.jpg",
+    "restaurant": "assets/images/restaurant/restaurant-02.png",
+    "shopping": "assets/images/shopping/shopping-02.png",
+     "family": "assets/images/family/family-02.png",
+    "vacations": "assets/images/vacations/vacations-02.png",
+    "sports": "assets/images/sports/sports-02.png",
+    "transportation": "assets/images/transportation/transportation-02.png",
+    "weather": "assets/images/weather/weather-02.png",
+    "technology": "assets/images/technology/technology-02.png",
+    "free time": "assets/images/free_time/free_time-02.png",
+    "friends": "assets/images/friends/friends-02.jpg"
+  };
+  return contextMap[context] || "assets/images/school/school-02.svg";
+}
+
+function generateSpeakerBPanel(opciones, context){
+  const imagePathSpeakerB = getContextImagePathSpeakerB(context);
+  return `
+    <div class="speaker-b-container">
+      <img src="${imagePathSpeakerB}" alt="Speaker B context: ${escapeHtml(context)}" class="speaker-image"/>
+      <div class="speaker-b-options">
+        ${Object.entries(opciones).map(([letter, text]) => {
+          const isCorrect = letter === "B";
+          return `
+            <div class="speaker-b-option ${isCorrect ? 'is-correct' : ''}">
+              <span class="option-label">${letter}.</span>
+              <span class="option-text">${escapeHtml(text)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function generateIllustration(example){
+  // Banner de contexto eliminado - ya no se usa
+}
+
+/* =========================================================================
+   MÓDULO: renderer — construir el worksheet (mismo estilo de index.html)
+   ========================================================================= */
+function contextOptionsHTML(selected){
+  return CONTEXTS.map(c => '<option value="' + c + '"' + (c===selected ? " selected" : "") + '>' + c + '</option>').join("");
+}
+
+function renderExam(){
+  const exam = state.exam;
+  const showExample = el.showExample.checked;
+  let html = '<div class="icfes-dialog-worksheet">' +
+    '<div class="icfes-watermark" aria-hidden="true"></div>' +
+    '<div class="icfes-section-label">• Parte 3 •</div>' +
+    '<h3 class="icfes-title">RESPONDE LAS PREGUNTAS 1 A 10 DE ACUERDO CON EL SIGUIENTE EJEMPLO</h3>' +
+    '<ul class="icfes-instructions">' +
+      '<li>' + escapeHtml(exam.instructions) + '</li>' +
+      '<li>En las preguntas 1 - 10, marque A, B o C en su hoja de respuestas.</li>' +
+    '</ul>';
+
+  if(showExample){
+    const ex = exam.example;
+    const imagePathA = getContextImagePath(ex.context);
+    const imagePathB = getContextImagePathSpeakerB(ex.context);
+    html += '<div class="icfes-example-label"><span>Ejemplo:</span></div>' +
+      '<section class="icfes-example-block">' +
+        '<div class="speaker-a-container">' +
+          '<img src="' + imagePathA + '" alt="Speaker A context: ' + escapeHtml(ex.context) + '" class="speaker-image"/>' +
+          '<div class="icfes-speech-bubble" contenteditable="true" data-field="example-speaker">' + escapeHtml(ex.speakerLine) + '</div>' +
+        '</div>' +
+        '<div class="speaker-b-container">' +
+          '<img src="' + imagePathB + '" alt="Speaker B context: ' + escapeHtml(ex.context) + '" class="speaker-image"/>' +
+          '<div class="speaker-b-options">' +
+            Object.entries(ex.opciones).map(([letter, text]) => {
+              const isCorrect = letter === ex.respuestaCorrecta;
+              return `
+                <div class="speaker-b-option ${isCorrect ? 'is-correct' : ''}">
+                  <span class="option-label">${letter}.</span>
+                  <span class="option-text" contenteditable="true" data-field="example-opt-${letter}">${escapeHtml(text)}</span>
+                  ${isCorrect ? '<span class="mark-ok">✓</span>' : ''}
+                </div>
+              `;
+            }).join("") +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="icfes-response-panel">' +
+        '<div class="response-label">Respuesta:</div>' +
+        '<div class="response-options">' +
+          '<span class="response-number">0.</span>' +
+          ["A","B","C"].map(l => '<span class="response-choice' + (l===ex.respuestaCorrecta ? " is-selected" : "") + '">' + l + '</span>').join("") +
+        '</div>' +
+      '</section>';
+  }
+
+  html += '<div class="icfes-divider"></div><section class="icfes-questions-block">';
+
+  exam.questions.forEach(q => {
+    html += '<div class="icfes-dialog-question" id="dialogue-card-' + q.id + '" data-qid="' + q.id + '">' +
+      '<div class="question-stem" contenteditable="true" data-field="stem" data-qid="' + q.id + '"><strong>' + q.displayNumber + '.</strong> ' + escapeHtml(q.speakerLine) + '</div>' +
+      '<div class="icfes-options-column">' +
+        Object.entries(q.opciones).map(([letter,text]) => (
+          '<button type="button" class="icfes-option-btn option-btn" data-qid="' + q.id + '" data-val="' + letter + '" id="btn-' + q.id + '-' + letter + '">' +
+            '<span class="icfes-option-letter">' + letter + '.</span>' +
+            '<span class="icfes-option-text" contenteditable="true" data-field="opt-' + letter + '" data-qid="' + q.id + '">' + escapeHtml(text) + '</span>' +
+          '</button>'
+        )).join("") +
+      '</div>' +
+      '<div class="q-toolbar">' +
+        '<span class="q-num">Contexto:</span>' +
+        '<select class="q-context-select" data-qid="' + q.id + '">' + contextOptionsHTML(q.metadata.context) + '</select>' +
+        '<div class="q-controls">' +
+          '<button type="button" class="q-regen" data-qid="' + q.id + '" title="Regenerar">🔄 Regenerar</button>' +
+          '<button type="button" class="q-dup" data-qid="' + q.id + '" title="Duplicar">⧉ Duplicar</button>' +
+          '<button type="button" class="q-up" data-qid="' + q.id + '" title="Subir">↑</button>' +
+          '<button type="button" class="q-down" data-qid="' + q.id + '" title="Bajar">↓</button>' +
+          '<button type="button" class="q-del" data-qid="' + q.id + '" title="Eliminar">🗑</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  html += '</section></div>';
+  el.workspace.innerHTML = html;
+  if(el.pillCount) el.pillCount.textContent = "Example (0) + Questions 1–" + exam.questions.length;
+
+  setupOptionListeners();
+  setupEditableListeners();
+  setupQuestionToolbarListeners();
+  renderValidationPanel();
+  renderMetadataPanel();
+  updateScoreDisplay();
+}
+
+function setupOptionListeners(){
+  el.workspace.querySelectorAll(".option-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if(state.checked) return;
+      const qid = btn.dataset.qid;
+      el.workspace.querySelectorAll('.option-btn[data-qid="' + qid + '"]').forEach(s => s.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.userAnswers[qid] = btn.dataset.val;
+    });
+  });
+}
+
+function setupEditableListeners(){
+  el.workspace.querySelectorAll("[data-field]").forEach(node => {
+    node.addEventListener("blur", () => {
+      const field = node.dataset.field;
+      const qid = node.dataset.qid;
+      const text = node.textContent.replace(/^\s*\d+\.\s*/,"").trim();
+      if(field === "example-speaker"){
+        state.exam.example.speakerLine = text;
+      } else if(field && field.indexOf("example-opt-") === 0){
+        const letter = field.replace("example-opt-","");
+        state.exam.example.opciones[letter] = text;
+      } else if(field === "stem"){
+        const q = state.exam.questions.find(x => String(x.id) === String(qid));
+        if(q) q.speakerLine = text;
+      } else if(field && field.indexOf("opt-") === 0){
+        const letter = field.replace("opt-","");
+        const q = state.exam.questions.find(x => String(x.id) === String(qid));
+        if(q) q.opciones[letter] = text;
+      }
+    });
+  });
+}
+
+function setupQuestionToolbarListeners(){
+  el.workspace.querySelectorAll(".q-regen").forEach(btn => {
+    btn.addEventListener("click", () => regenerateQuestion(btn.dataset.qid));
+  });
+  el.workspace.querySelectorAll(".q-context-select").forEach(sel => {
+    sel.addEventListener("change", () => regenerateQuestion(sel.dataset.qid, sel.value));
+  });
+  el.workspace.querySelectorAll(".q-dup").forEach(btn => {
+    btn.addEventListener("click", () => duplicateQuestion(btn.dataset.qid));
+  });
+  el.workspace.querySelectorAll(".q-up").forEach(btn => {
+    btn.addEventListener("click", () => moveQuestion(btn.dataset.qid, -1));
+  });
+  el.workspace.querySelectorAll(".q-down").forEach(btn => {
+    btn.addEventListener("click", () => moveQuestion(btn.dataset.qid, 1));
+  });
+  el.workspace.querySelectorAll(".q-del").forEach(btn => {
+    btn.addEventListener("click", () => deleteQuestion(btn.dataset.qid));
+  });
+}
+
+function renumberQuestions(){
+  state.exam.questions.forEach((q, i) => { q.displayNumber = i + 1; });
+  state.exam.answerKey = state.exam.questions.map(q => ({id:q.id, correct:q.respuestaCorrecta}));
+}
+
+function duplicateQuestion(qid){
+  const idx = state.exam.questions.findIndex(x => String(x.id) === String(qid));
+  if(idx === -1) return;
+  const clone = JSON.parse(JSON.stringify(state.exam.questions[idx]));
+  const maxId = Math.max.apply(null, state.exam.questions.map(q => q.id));
+  clone.id = maxId + 1;
+  state.exam.questions.splice(idx + 1, 0, clone);
+  renumberQuestions();
+  renderExam();
+  showToast("Pregunta duplicada.", "ok");
+}
+
+function moveQuestion(qid, delta){
+  const idx = state.exam.questions.findIndex(x => String(x.id) === String(qid));
+  const newIdx = idx + delta;
+  if(idx === -1 || newIdx < 0 || newIdx >= state.exam.questions.length) return;
+  const arr = state.exam.questions;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  renumberQuestions();
+  renderExam();
+}
+
+function deleteQuestion(qid){
+  const idx = state.exam.questions.findIndex(x => String(x.id) === String(qid));
+  if(idx === -1) return;
+  if(state.exam.questions.length <= 1){ showToast("Debe quedar al menos una pregunta.", "warn"); return; }
+  state.exam.questions.splice(idx, 1);
+  delete state.userAnswers[qid];
+  renumberQuestions();
+  renderExam();
+  showToast("Pregunta eliminada.", "ok");
+}
+
+function regenerateQuestion(qid, forcedContext){
+  const idx = state.exam.questions.findIndex(x => String(x.id) === String(qid));
+  if(idx === -1) return;
+  const usedLines = state.exam.questions.map(q => q.speakerLine);
+  const filters = { difficulty: state.filters.difficulty, context: forcedContext || "any" };
+  const tpl = pickTemplates(filterBankByActive(QUESTION_BANK), filters, 1, usedLines)[0];
+  const displayNumber = state.exam.questions[idx].displayNumber;
+  const id = state.exam.questions[idx].id;
+  state.exam.questions[idx] = templateToQuestion(tpl, id, displayNumber);
+  delete state.userAnswers[id];
+  state.exam.answerKey = state.exam.questions.map(q => ({id:q.id, correct:q.respuestaCorrecta}));
+  renderExam();
+  showToast("Pregunta " + displayNumber + " regenerada.", "ok");
+}
+
+function renderValidationPanel(){
+  const checks = validateExam(state.exam);
+  el.validationList.innerHTML = checks.map(c =>
+    '<div class="check-row ' + (c.ok ? "ok" : "fail") + '"><span class="mark">' + (c.ok ? "✓" : "✗") + '</span><span>' + escapeHtml(c.label) + '</span></div>'
+  ).join("");
+}
+
+function renderMetadataPanel(){
+  const rows = [{displayNumber:"0 (Ejemplo)", metadata:{competency:"pragmatic-communicative", speechAct:state.exam.example.speechAct, communicativeFunction:state.exam.example.speechAct, difficulty:"—", register:"—", context:state.exam.example.context}, respuestaCorrecta:state.exam.example.respuestaCorrecta}]
+    .concat(state.exam.questions);
+  el.metadataBody.innerHTML = rows.map(q => {
+    const m = q.metadata || {};
+    return "<tr><td>" + q.displayNumber + "</td><td>" + escapeHtml(m.competency||"") + "</td><td>" + escapeHtml(m.speechAct||"") + "</td><td>" + escapeHtml(m.communicativeFunction||"") + "</td><td>" + escapeHtml(m.difficulty||"") + "</td><td>" + escapeHtml(m.register||"") + "</td><td>" + escapeHtml(m.context||"") + "</td><td>" + escapeHtml(q.respuestaCorrecta||"") + "</td></tr>";
+  }).join("");
+}
+
+/* =========================================================================
+   MÓDULO: scoring
+   ========================================================================= */
+function checkAnswers(){
+  if(!state.exam || state.checked) return;
+  state.checked = true;
+  let correctCount = 0;
+  state.exam.questions.forEach(q => {
+    const userVal = state.userAnswers[q.id] || "";
+    Object.keys(q.opciones).forEach(letter => {
+      const btn = document.getElementById("btn-" + q.id + "-" + letter);
+      if(!btn) return;
+      btn.classList.remove("selected");
+      if(letter === q.respuestaCorrecta){
+        btn.classList.add(userVal === letter ? "is-correct" : "is-missed-correct");
+      } else if(letter === userVal){
+        btn.classList.add("is-incorrect");
+      }
+    });
+    if(userVal === q.respuestaCorrecta) correctCount++;
+  });
+  state.score = correctCount;
+  state.total = state.exam.questions.length;
+  updateScoreDisplay();
+}
+
+function showAnswers(){
+  if(!state.exam) return;
+  if(!state.checked) checkAnswers();
+  state.exam.questions.forEach(q => {
+    const btn = document.getElementById("btn-" + q.id + "-" + q.respuestaCorrecta);
+    if(btn) btn.classList.add("is-correct");
+  });
+  el.showKey.checked = true;
+}
+
+function resetExercise(){
+  if(!state.exam) return;
+  state.userAnswers = {};
+  state.checked = false;
+  state.score = null; state.total = 0;
+  renderExam();
+}
+
+function updateScoreDisplay(){
+  if(state.score == null || state.score === undefined){
+    el.scoreValue.textContent = "-- / --";
+    el.scoreProgress.style.width = "0%";
+  } else {
+    el.scoreValue.textContent = state.score + " / " + state.total;
+    el.scoreProgress.style.width = ((state.score/state.total)*100) + "%";
+  }
+}
+
+/* =========================================================================
+   MÓDULO: export — JSON / HTML / Word (.doc) / PDF
+   ========================================================================= */
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content], {type: mime});
+  const urlObj = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = urlObj; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(urlObj);
+}
+
+function examToJSONSchema(){
+  const exam = state.exam;
+  return {
+    part: 3,
+    title: exam.title,
+    instructions: exam.instructions,
+    example: {
+      dialogo: "Speaker A: " + exam.example.speakerLine + "\nSpeaker B: _______",
+      opciones: exam.example.opciones,
+      respuestaCorrecta: exam.example.respuestaCorrecta,
+      metadata: { context: exam.example.context, speechAct: exam.example.speechAct }
+    },
+    questions: exam.questions.map(q => ({
+      id: q.id,
+      dialogo: "Speaker A: " + q.speakerLine + "\nSpeaker B: _______",
+      opciones: q.opciones,
+      respuestaCorrecta: q.respuestaCorrecta,
+      metadata: q.metadata
+    })),
+    answerKey: exam.answerKey,
+    metadata: exam.metadata
+  };
+}
+
+function exportJSON(){
+  if(!state.exam) return;
+  downloadBlob(JSON.stringify(examToJSONSchema(), null, 2), "exam-engine-part3-" + Date.now() + ".json", "application/json");
+  showToast("JSON exportado.", "ok");
+}
+
+function exportHTML(){
+  if(!state.exam) return;
+  const styles = document.querySelector("style").outerHTML;
+  const worksheet = el.workspace.innerHTML;
+  const doc = "<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\"><title>Part 3 - Short Conversations</title>" + styles +
+    "</head><body class=\"theme-slate-light\" style=\"padding:24px;\">" + worksheet + "</body></html>";
+  downloadBlob(doc, "exam-engine-part3-" + Date.now() + ".html", "text/html");
+  showToast("HTML exportado.", "ok");
+}
+
+function exportMarkdown(){
+  if(!state.exam) return;
+  const exam = state.exam;
+  let md = "# " + exam.title + "\n\n" + exam.instructions + "\n\n## Example\n\n";
+  md += "Speaker A: " + exam.example.speakerLine + "\nSpeaker B: _______\n\n";
+  ["A","B","C"].forEach(l => { md += "- **" + l + ".** " + exam.example.opciones[l] + (l === exam.example.respuestaCorrecta ? " ✅" : "") + "\n"; });
+  md += "\n---\n\n";
+  exam.questions.forEach(q => {
+    md += "## " + q.displayNumber + ". \n\nSpeaker A: " + q.speakerLine + "\nSpeaker B: _______\n\n";
+    ["A","B","C"].forEach(l => { md += "- **" + l + ".** " + q.opciones[l] + (l === q.respuestaCorrecta ? " ✅" : "") + "\n"; });
+    md += "\n*Context: " + (q.metadata.context||"") + " · Speech act: " + (q.metadata.speechAct||"") + " · Difficulty: " + (q.metadata.difficulty||"") + "*\n\n";
+  });
+  downloadBlob(md, "exam-engine-part3-" + Date.now() + ".md", "text/markdown");
+  showToast("Markdown exportado.", "ok");
+}
+
+
+function exportPDF(){
+  if(!state.exam) return;
+  window.print();
+}
+
+/* =========================================================================
+   ORQUESTACIÓN — generar prueba (modo offline exclusivo)
+   ========================================================================= */
+function generateExam(){
+  el.workspace.innerHTML = '<div class="welcome-shimmer"><div class="shimmer-line title"></div><div class="shimmer-line text"></div><div class="shimmer-line text"></div><div class="shimmer-line text"></div></div>';
+  state.userAnswers = {}; state.checked = false; state.score = null; state.total = 0;
+  state.filters.difficulty = el.tbDifficulty.value;
+  state.filters.context = el.tbContext.value;
+  state.editorConfig.quantity = Math.max(4, Math.min(20, parseInt(el.cfgQuantity.value, 10) || 10));
+  state.editorConfig.topic = el.cfgTopic.value.trim();
+  state.editorConfig.vocabulary = el.cfgVocabulary.value;
+  persistEditorConfig();
+
+  state.exam = buildOfflineExam(state.filters);
+  renderExam();
+}
+
+/* =========================================================================
+   INICIALIZACIÓN Y EVENTOS
+   ========================================================================= */
+function cacheEls(){
+  el.workspace = document.getElementById("workspace");
+  el.toastStack = document.getElementById("toast-stack");
+  el.scoreValue = document.getElementById("score-value");
+  el.scoreProgress = document.getElementById("score-progress");
+  el.tbDifficulty = document.getElementById("tb-difficulty");
+  el.tbContext = document.getElementById("tb-context");
+  el.showExample = document.getElementById("tb-show-example");
+  el.showKey = document.getElementById("tb-show-key");
+  el.showMeta = document.getElementById("tb-show-meta");
+  el.showValidation = document.getElementById("tb-show-validation");
+  el.validationPanel = document.getElementById("validation-panel");
+  el.validationList = document.getElementById("validation-list");
+  el.metadataPanel = document.getElementById("metadata-panel");
+  el.metadataBody = document.getElementById("metadata-body");
+  el.pillMode = document.getElementById("pill-mode");
+  el.pillCount = document.getElementById("pill-count");
+  el.cfgQuantity = document.getElementById("cfgQuantity");
+  el.cfgTopic = document.getElementById("cfgTopic");
+  el.cfgVocabulary = document.getElementById("cfgVocabulary");
+  el.editorPanelHeader = document.getElementById("editorPanelHeader");
+  el.editorPanelBody = document.getElementById("editorPanelBody");
+  el.editorPanelToggle = document.getElementById("editorPanelToggle");
+  el.contextBank = document.getElementById("contextBank");
+  el.speechActBank = document.getElementById("speechActBank");
+  el.newContextInput = document.getElementById("newContextInput");
+  el.btnAddContext = document.getElementById("btnAddContext");
+  el.newSpeechActInput = document.getElementById("newSpeechActInput");
+  el.btnAddSpeechAct = document.getElementById("btnAddSpeechAct");
+}
+
+/* =========================================================================
+   MÓDULO: EditorPanel — banco de contextos y actos de habla editables
+   ========================================================================= */
+function renderChipBank(container, bank, activeList, onToggle, onRemove){
+  container.innerHTML = bank.map(item => {
+    const active = activeList.indexOf(item) !== -1;
+    return '<span class="category-chip' + (active ? '' : ' is-off') + '" data-item="' + escapeHtml(item) + '" role="button" tabindex="0" aria-pressed="' + active + '">' +
+      escapeHtml(item) +
+      '<button type="button" class="chip-remove" data-remove="' + escapeHtml(item) + '" aria-label="Eliminar ' + escapeHtml(item) + '">✕</button>' +
+    '</span>';
+  }).join("");
+}
+
+function renderEditorBanks(){
+  renderChipBank(el.contextBank, state.contextBank, state.editorConfig.activeContexts);
+  renderChipBank(el.speechActBank, state.speechActBank, state.editorConfig.activeSpeechActs);
+}
+
+function wireChipBank(container, bankKey, activeKey){
+  container.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-remove]");
+    if(removeBtn){
+      const item = removeBtn.dataset.remove;
+      state[bankKey] = state[bankKey].filter(x => x !== item);
+      state.editorConfig[activeKey] = state.editorConfig[activeKey].filter(x => x !== item);
+      persistEditorConfig();
+      renderEditorBanks();
+      return;
+    }
+    const chip = e.target.closest(".category-chip");
+    if(chip){
+      const item = chip.dataset.item;
+      const isActive = state.editorConfig[activeKey].indexOf(item) !== -1;
+      state.editorConfig[activeKey] = isActive
+        ? state.editorConfig[activeKey].filter(x => x !== item)
+        : state.editorConfig[activeKey].concat([item]);
+      persistEditorConfig();
+      renderEditorBanks();
+    }
+  });
+}
+
+function wireEditorPanel(){
+  el.editorPanelHeader.addEventListener("click", () => {
+    const collapsed = el.editorPanelBody.classList.toggle("collapsed");
+    el.editorPanelToggle.textContent = collapsed ? "mostrar ▼" : "ocultar ▲";
+  });
+
+  wireChipBank(el.contextBank, "contextBank", "activeContexts");
+  wireChipBank(el.speechActBank, "speechActBank", "activeSpeechActs");
+
+  el.btnAddContext.addEventListener("click", () => {
+    const val = el.newContextInput.value.trim().toLowerCase();
+    if(!val) return;
+    if(state.contextBank.indexOf(val) === -1){
+      state.contextBank.push(val);
+      state.editorConfig.activeContexts.push(val);
+      persistEditorConfig();
+      renderEditorBanks();
+    }
+    el.newContextInput.value = "";
+  });
+  el.newContextInput.addEventListener("keydown", (e) => { if(e.key === "Enter") el.btnAddContext.click(); });
+
+  el.btnAddSpeechAct.addEventListener("click", () => {
+    const val = el.newSpeechActInput.value.trim().toLowerCase();
+    if(!val) return;
+    if(state.speechActBank.indexOf(val) === -1){
+      state.speechActBank.push(val);
+      state.editorConfig.activeSpeechActs.push(val);
+      persistEditorConfig();
+      renderEditorBanks();
+    }
+    el.newSpeechActInput.value = "";
+  });
+  el.newSpeechActInput.addEventListener("keydown", (e) => { if(e.key === "Enter") el.btnAddSpeechAct.click(); });
+
+  el.cfgQuantity.value = state.editorConfig.quantity;
+  el.cfgTopic.value = state.editorConfig.topic;
+  el.cfgVocabulary.value = state.editorConfig.vocabulary;
+
+  renderEditorBanks();
+}
+
+function wireEvents(){
+  document.getElementById("btn-new-exercise").addEventListener("click", generateExam);
+  document.getElementById("btn-reset").addEventListener("click", resetExercise);
+  document.getElementById("btn-check").addEventListener("click", checkAnswers);
+  document.getElementById("btn-show-answers").addEventListener("click", showAnswers);
+
+  document.getElementById("btn-theme").addEventListener("click", () => {
+    state.theme = state.theme === "theme-slate-dark" ? "theme-slate-light" : "theme-slate-dark";
+    document.body.className = state.theme;
+  });
+
+
+  el.showExample.addEventListener("change", () => { if(state.exam) renderExam(); });
+  el.showValidation.addEventListener("change", () => el.validationPanel.classList.toggle("show", el.showValidation.checked));
+  el.showMeta.addEventListener("change", () => el.metadataPanel.classList.toggle("show", el.showMeta.checked));
+  el.showKey.addEventListener("change", () => { if(el.showKey.checked) showAnswers(); });
+
+  const exportBtn = document.getElementById("btn-export");
+  const exportMenu = document.getElementById("export-menu");
+  exportBtn.addEventListener("click", (e) => { e.stopPropagation(); exportMenu.classList.toggle("show"); });
+  document.addEventListener("click", () => exportMenu.classList.remove("show"));
+  document.getElementById("exp-json").addEventListener("click", exportJSON);
+  document.getElementById("exp-md").addEventListener("click", exportMarkdown);
+  document.getElementById("exp-html").addEventListener("click", exportHTML);
+  document.getElementById("exp-pdf").addEventListener("click", exportPDF);
+}
+
+function populateContextSelect(){
+  el.tbContext.innerHTML = '<option value="any">Cualquier contexto</option>' + contextOptionsHTML(null);
+}
+
+function init(){
+  cacheEls();
+  populateContextSelect();
+  wireEditorPanel();
+  wireEvents();
+  generateExam();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
